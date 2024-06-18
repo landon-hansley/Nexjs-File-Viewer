@@ -1,95 +1,74 @@
+'use client'
 import Image from "next/image";
-import styles from "./page.module.css";
+import './page.css'
+import { useState } from "react";
 
-export default function Home() {
+const initialFiles = {
+
+}
+
+function DisplayFiles({ file, depth }) {
+  const [expanded, setExpanded] = useState(false)
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <div>
+      <div onClick={() => { setExpanded(!expanded) }} className={`File`} style={{ marginLeft: 20 * depth + "px", width: 500 - 20 * depth }}>
+        {file.Child ?
+          <div style={{marginRight: '5px'}}>
+            {expanded ? "-" : "+"}
+          </div>
+          :
+          null
+        }
+        {file.Name}
       </div>
+      {expanded ? file.Child?.map((files) => (
+        <DisplayFiles key={files.Name} file={files} depth={depth + 1} />
+      )) : null}
+    </div>
+  )
+}
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+function Home() {
+  const [files, setFiles] = useState(initialFiles);
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+  const handleUpload = (event) => {
+    const uploadedFiles = event.target.files;
+    const fileTree = {};
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+    for (const file of uploadedFiles) {
+      const pathParts = file.webkitRelativePath.split('/');
+      let currentLevel = fileTree;
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
+      pathParts.forEach((part, index) => {
+        if (!currentLevel[part]) {
+          currentLevel[part] = { Name: part, Child: index === pathParts.length - 1 ? null : [] };
+        }
+        if (currentLevel[part].Child && index !== pathParts.length - 1) {
+          currentLevel = currentLevel[part].Child;
+        }
+      });
+    }
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    const transformToArray = (obj) => {
+      return Object.values(obj).map((value) => {
+        if (value.Child) {
+          value.Child = transformToArray(value.Child);
+        }
+        return value;
+      });
+    };
+
+    setFiles({ Child: transformToArray(fileTree) });
+  };
+
+  return (
+    <div className="FileWrapper">
+      <input className="UploadButton" type="file" webkitdirectory="true" directory="true" onChange={handleUpload} />
+      {files.Child?.map((file) => (
+        <DisplayFiles key={file.Name} file={file} depth={0} />
+      ))}
+    </div>
   );
 }
+
+export default Home;
