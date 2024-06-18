@@ -4,7 +4,7 @@ This is a React application that allows users to upload a folder and view its st
 
 ## Live Demo
 
-Check out the [Folder Viewer App on Vercel](https://vercel.com).
+Check out the [Folder Viewer App on Vercel](https://nexjs-file-viewer.vercel.app/).
 
 ## Features
 
@@ -58,7 +58,7 @@ Check out the [Folder Viewer App on Vercel](https://vercel.com).
 
 ## Live Demo
 
-You can also view the live demo deployed on Vercel: [Folder Viewer App on Vercel](https://vercel.com).
+You can also view the live demo deployed on Vercel: [Folder Viewer App on Vercel](https://nexjs-file-viewer.vercel.app/).
 
 ## Usage
 
